@@ -5,6 +5,7 @@ const User = require("../models/user.js"); //bringing in user model
 const bcrypt = require("bcrypt");
 
 
+
 module.exports = router;
 
 
@@ -28,4 +29,37 @@ router.post('/sign-up' , async (req,res) => {
 
     const user = await User.create(req.body); //creates the user in the database
     res.send(`Thanks for signing up ${user.username}`);
+})
+
+
+//sign in 
+
+router.get('/sign-in' , async (req,res) => {
+    res.render('auth/sign-in.ejs')
+})
+
+router.post('/sign-in', async (req,res) => {
+const userInDatabase = await User.findOne({username: req.body.username}) // a user that exists in the database
+
+    if(!userInDatabase) {
+        return res.send('Login failed. Please try again.')
+    }
+
+    const validPassword = bcrypt.compareSync(req.body.password, userInDatabase.password); // if password exists in the database
+
+    if (!validPassword) {
+        return res.send('Login failed. Incorrect password')
+    }
+    
+    req.session.user = {
+        username: userInDatabase.username,
+        _id: userInDatabase._id,
+      };  
+    res.redirect('/');
+    
+})
+
+router.get('/sign-out' , (req,res) => { //to sign out you should destroy the session as well
+    req.session.destroy();
+    res.redirect('/')
 })
