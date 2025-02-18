@@ -10,20 +10,19 @@ const morgan = require("morgan");
 const port = process.env.PORT ? process.env.PORT : "3000";
 
 const authController = require("./controllers/auth")
-mongoose.connect(process.env.MONGODB_URI);
 
+mongoose.connect(process.env.MONGODB_URI);
 mongoose.connection.on("connected", () => {
   console.log(`Connected to MongoDB ${mongoose.connection.name}.`);
 });
 
 // Middleware to parse URL-encoded data from forms
 app.use(express.urlencoded({ extended: false }));
-
 // Middleware for using HTTP verbs such as PUT or DELETE
 app.use(methodOverride("_method"));
-
 // Morgan for logging HTTP requests
 app.use(morgan('dev'));
+
 
 app.use('/auth', authController)
 
